@@ -3,7 +3,13 @@ import * as Form from "@radix-ui/react-form";
 import { Input } from "./components/ui/input";
 import { Button } from "./components/ui/button";
 import { Loader2 } from "lucide-react";
-import { Separator } from "./components/ui/separator";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./components/ui/select";
 import {
   Card,
   CardContent,
@@ -12,6 +18,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./components/ui/card";
+import { Switch } from "./components/ui/switch";
 
 function App() {
   const [routeInfo, setRouteInfo] = useState();
@@ -24,7 +31,26 @@ function App() {
       ].map((x) => x.replace(/\+/g, " "))
     : [];
 
-  console.log(startEnd);
+  function getRedirectedURL(url, callback) {
+    var xhr = new XMLHttpRequest();
+
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState === 4) {
+        var redirectedURL = xhr.responseURL;
+        callback(redirectedURL);
+      }
+    };
+
+    xhr.open("HEAD", url);
+    xhr.send();
+  }
+
+  // Example usage
+  var inputURL = "http://google.com";
+
+  getRedirectedURL(inputURL, function (redirectedURL) {
+    console.log("Redirected URL:", redirectedURL);
+  });
 
   const apiEndpoint = import.meta.env.VITE_REACT_APP_API_ENDPOINT;
   const handleSubmit = async (event) => {
@@ -50,7 +76,7 @@ function App() {
 
   return (
     <div className="container mx-auto py-6 max-w-xl space-y-6 px-6 min-h-screen bg-white font-sans text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-50">
-      <h1 className="font-bold text-6xl">Google Maps Route Optimizer 🌎</h1>
+      <h1 className="font-bold text-5xl">Google Maps Route Optimizer 🌎</h1>
       <p>
         Enter your Google Maps URL with multiple stops 📍🗺️🚗 and let us 🤖
         calculate an optimal route 🧭 for you! 🎉
@@ -80,6 +106,42 @@ function App() {
             />
           </Form.Control>
         </Form.Field>
+        <Form.Field
+          name="travel-mode"
+          className="flex justify-between items-baseline"
+        >
+          <Form.Label className="font-bold">Travel Mode</Form.Label>
+          <Form.Control asChild>
+            <Select>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Driving" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="driving">Driving</SelectItem>
+                <SelectItem value="walking">Walking</SelectItem>
+                <SelectItem value="cycling">Cycling</SelectItem>
+              </SelectContent>
+            </Select>
+          </Form.Control>
+        </Form.Field>
+        <Form.Field
+          name="fixed-start-point"
+          className="flex justify-between items-center"
+        >
+          <Form.Label className="font-bold">Fixed Start Point</Form.Label>
+          <Form.Control asChild>
+            <Switch>Toggle</Switch>
+          </Form.Control>
+        </Form.Field>
+        <Form.Field
+          name="fixed-end-point"
+          className="flex justify-between items-center"
+        >
+          <Form.Label className="font-bold">Fixed End Point</Form.Label>
+          <Form.Control asChild>
+            <Switch>Toggle</Switch>
+          </Form.Control>
+        </Form.Field>
         <Form.Submit asChild className="font-bold">
           {isLoading ? (
             <Button disabled>
@@ -91,7 +153,6 @@ function App() {
           )}
         </Form.Submit>
       </Form.Root>
-      {/* <Separator /> */}
       {routeInfo ? (
         <Card>
           <CardHeader>
@@ -105,10 +166,14 @@ function App() {
           </CardHeader>
           <CardContent className="space-x-2">
             <Button>
-              <a href={routeInfo.solution_url}>New Route 🔗</a>
+              <a href={routeInfo.solution_url} target="_blank">
+                New Route 🔗
+              </a>
             </Button>
             <Button variant="subtle">
-              <a href={routeInfo.url}>Old Route 🔗</a>
+              <a href={routeInfo.url} target="_blank">
+                Old Route 🔗
+              </a>
             </Button>
           </CardContent>
           {/* <CardFooter>

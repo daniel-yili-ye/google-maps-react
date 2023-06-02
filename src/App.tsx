@@ -23,40 +23,20 @@ import { Switch } from "./components/ui/switch";
 function App() {
   const [routeInfo, setRouteInfo] = useState();
   const [isLoading, setIsLoading] = useState(false);
+  const apiEndpoint = import.meta.env.VITE_REACT_APP_API_ENDPOINT;
 
   const startEnd = routeInfo
     ? [
-        routeInfo.destinations[0],
-        routeInfo.destinations[routeInfo.destinations.length - 1],
-      ].map((x) => x.replace(/\+/g, " "))
+        routeInfo.solution[0],
+        routeInfo.solution[routeInfo.solution.length - 1],
+      ].map((x) => x.replace(/\+/g, " ").split(",", 1)[0])
     : [];
 
-  function getRedirectedURL(url, callback) {
-    var xhr = new XMLHttpRequest();
-
-    xhr.onreadystatechange = function () {
-      if (xhr.readyState === 4) {
-        var redirectedURL = xhr.responseURL;
-        callback(redirectedURL);
-      }
-    };
-
-    xhr.open("HEAD", url);
-    xhr.send();
-  }
-
-  // Example usage
-  var inputURL = "http://google.com";
-
-  getRedirectedURL(inputURL, function (redirectedURL) {
-    console.log("Redirected URL:", redirectedURL);
-  });
-
-  const apiEndpoint = import.meta.env.VITE_REACT_APP_API_ENDPOINT;
   const handleSubmit = async (event) => {
     setIsLoading(true);
     event.preventDefault();
     const data = Object.fromEntries(new FormData(event.currentTarget));
+    console.log(data);
     try {
       const response = await fetch(apiEndpoint, {
         method: "POST",
@@ -76,12 +56,11 @@ function App() {
 
   return (
     <div className="container mx-auto py-6 max-w-xl space-y-6 px-6 min-h-screen bg-white font-sans text-slate-900 antialiased dark:bg-slate-900 dark:text-slate-50">
-      <h1 className="font-bold text-5xl">Google Maps Route Optimizer 🌎</h1>
+      <h1 className="font-extrabold text-6xl">Google Maps Route Optimizer</h1>
       <p>
         Enter your Google Maps URL with multiple stops 📍🗺️🚗 and let us 🤖
         calculate an optimal route 🧭 for you! 🎉
       </p>
-      {/* <Separator /> */}
       <Form.Root
         className="space-y-4"
         onSubmit={(event) => {
@@ -107,42 +86,42 @@ function App() {
           </Form.Control>
         </Form.Field>
         <Form.Field
-          name="travel-mode"
+          name="travel_mode"
           className="flex justify-between items-baseline"
         >
           <Form.Label className="font-bold">Travel Mode</Form.Label>
           <Form.Control asChild>
-            <Select>
+            <Select defaultValue="driving">
               <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Driving" />
+                <SelectValue placeholder="Select" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="driving">Driving</SelectItem>
                 <SelectItem value="walking">Walking</SelectItem>
-                <SelectItem value="cycling">Cycling</SelectItem>
+                <SelectItem value="bicycling">Cycling</SelectItem>
               </SelectContent>
             </Select>
           </Form.Control>
         </Form.Field>
         <Form.Field
-          name="fixed-start-point"
+          name="fixed_start_point"
           className="flex justify-between items-center"
         >
           <Form.Label className="font-bold">Fixed Start Point</Form.Label>
           <Form.Control asChild>
-            <Switch>Toggle</Switch>
+            <Switch defaultChecked={true}>Toggle</Switch>
           </Form.Control>
         </Form.Field>
         <Form.Field
-          name="fixed-end-point"
+          name="fixed_end_point"
           className="flex justify-between items-center"
         >
           <Form.Label className="font-bold">Fixed End Point</Form.Label>
           <Form.Control asChild>
-            <Switch>Toggle</Switch>
+            <Switch defaultChecked={true}>Toggle</Switch>
           </Form.Control>
         </Form.Field>
-        <Form.Submit asChild className="font-bold">
+        <Form.Submit asChild className="font-bold w-full">
           {isLoading ? (
             <Button disabled>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -157,12 +136,9 @@ function App() {
         <Card>
           <CardHeader>
             <CardTitle>
-              {startEnd[0]} ➡️ {startEnd[1]}
+              {startEnd[0]} → {startEnd[1]}
             </CardTitle>
-            <CardDescription>
-              You saved 8h 🧭, 340km 🗺, 34L of gas ⛽️ or approximately $568.99
-              🤑!
-            </CardDescription>
+            <CardDescription>You saved 8h 🧭 or 340km 🗺!</CardDescription>
           </CardHeader>
           <CardContent className="space-x-2">
             <Button>
